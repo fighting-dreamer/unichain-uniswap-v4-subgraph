@@ -1,9 +1,9 @@
 import { BigInt, log } from '@graphprotocol/graph-ts'
 
 import { ModifyLiquidity as ModifyLiquidityEvent } from '../types/PoolManager/PoolManager'
-import { Bundle, ModifyLiquidity, Pool, PoolManager, Tick, Token } from '../types/schema'
+import { Bundle, ModifyLiquidity, Pool, PoolManager, Tick, Token, UserNetLiquidityChange } from '../types/schema'
 import { getSubgraphConfig, SubgraphConfig } from '../utils/chains'
-import { ONE_BI } from '../utils/constants'
+import { ONE_BI, ZERO_BD } from '../utils/constants'
 import { convertTokenToDecimal, loadTransaction } from '../utils/index'
 import {
   updatePoolDayData,
@@ -148,6 +148,26 @@ export function handleModifyLiquidityHelper(
     lowerTick.liquidityNet = lowerTick.liquidityNet.plus(amount)
     upperTick.liquidityGross = upperTick.liquidityGross.plus(amount)
     upperTick.liquidityNet = upperTick.liquidityNet.minus(amount)
+
+    // --- Add UserNetLiquidityChange Logic ---
+    const userAddress = event.transaction.from
+    let userNetChange = UserNetLiquidityChange.load(userAddress.toHexString())
+
+    if (userNetChange === null) {
+      userNetChange = new UserNetLiquidityChange(userAddress.toHexString())
+      userNetChange.user = userAddress
+      userNetChange.netAmount0 = ZERO_BD // Initialize with zero
+      userNetChange.netAmount1 = ZERO_BD // Initialize with zero
+    }
+
+    // Add the amounts from the current event
+    // amount0 and amount1 should correctly represent deposits (+) or withdrawals (-)
+    userNetChange.netAmount0 = userNetChange.netAmount0.plus(amount0)
+    userNetChange.netAmount1 = userNetChange.netAmount1.plus(amount1)
+    userNetChange.lastUpdateTimestamp = transaction.timestamp
+    userNetChange.lastUpdateBlockNumber = event.block.number
+
+    userNetChange.save()
 
     lowerTick.save()
     upperTick.save()
