@@ -151,11 +151,12 @@ export function handleModifyLiquidityHelper(
 
     // --- Add UserNetLiquidityChange Logic ---
     const userAddress = event.transaction.from
-    let userNetChange = UserNetLiquidityChange.load(userAddress.toHexString())
+    let userNetChange = UserNetLiquidityChange.load(userAddress.toHexString() + '#' + pool.id)
 
     if (userNetChange === null) {
-      userNetChange = new UserNetLiquidityChange(userAddress.toHexString())
+      userNetChange = new UserNetLiquidityChange(userAddress.toHexString() + '#' + pool.id)
       userNetChange.user = userAddress
+      userNetChange.pool = pool.id
       userNetChange.netAmount0 = ZERO_BD // Initialize with zero
       userNetChange.netAmount1 = ZERO_BD // Initialize with zero
     }

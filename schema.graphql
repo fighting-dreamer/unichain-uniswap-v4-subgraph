@@ -496,6 +496,8 @@ type UserNetLiquidityChange @entity(immutable: false) {
   id: ID!
   # "User address"
   user: Bytes!
+  # "pool id"
+  pool: String!
   # "Net change in token0 amount from ModifyLiquidity events"
   netAmount0: BigDecimal!
   # "Net change in token1 amount from ModifyLiquidity events"
