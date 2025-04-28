@@ -1,4 +1,4 @@
-specVersion: 1.0.0
+specVersion: 0.0.7
 description: Uniswap is a decentralized protocol for automated token exchange on Ethereum.
 repository: https://github.com/Uniswap/v4-subgraph
 schema:
@@ -10,8 +10,6 @@ dataSources:
   - kind: ethereum
     name: PoolManager
     network: unichain
-    indexerHints:
-      prune: never
     source:
       abi: PoolManager
       address: "0x1F98400000000000000000000000000000000004"
@@ -46,8 +44,6 @@ dataSources:
   - kind: ethereum
     name: PositionManager
     network: unichain
-    indexerHints:
-      prune: never
     source:
       abi: PositionManager
       address: "0x4529A01c7A0410167c5740C487A8DE60232617bf"
